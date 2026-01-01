@@ -6,19 +6,18 @@ import easyocr
 reader = easyocr.Reader(['en'], gpu=False)
 
 def printGrid(grid):
-    sep = ","
+    sep = "    "
     n = len(grid)
 
+    print("_"*41)
     for i in range(n):
-        print("[", end="")
         for j in range(n):
-            if j == n-1:
-                print(grid[i][j], end="")
+            if grid[i][j] == 0:
+                print(".", end=sep)
             else:
                 print(grid[i][j], end=sep)
-
-        print("]", end="")
         print()
+        print("-"*41)
 
 def hasDuplicates(grid, row_start, row_end, col_start, col_end):
     
