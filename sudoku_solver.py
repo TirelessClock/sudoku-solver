@@ -157,13 +157,13 @@ def get_grid():
 
 unsolvedSudoku = get_grid()
 
-print("Unsolved: ")
+print("unsolved: ")
 printGrid(unsolvedSudoku)
 
 print(
-    "Is this your puzzle?" \
-    "\nIf not, please input corrections in the format: row column correct_value (1-indexed)." \
-    "\nElse, press Enter."
+    "is this your puzzle?" \
+    "\nif not, please input corrections in the format: row column correct_value (1-indexed)." \
+    "\npress ENTER when satisfied."
 )
 
 while True:
@@ -176,5 +176,5 @@ while True:
 
     printGrid(unsolvedSudoku)
 
-print("Solved: ") 
+print("solved: ") 
 printGrid(solvePuzzle(unsolvedSudoku))
