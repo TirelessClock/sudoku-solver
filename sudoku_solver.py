@@ -182,7 +182,7 @@ print("Unsolved: ")
 printGrid(unsolvedSudoku)
 
 print(
-    "Is this your grid?" \
+    "Is this your puzzle?" \
     "\nIf not, please input corrections in the format: row column correct_value (1-indexed)." \
     "\nElse, press Enter."
 )
