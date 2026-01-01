@@ -1,0 +1,191 @@
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+import easyocr
+
+reader = easyocr.Reader(['en'], gpu=False)
+
+def printGrid(grid):
+    sep = ","
+    n = len(grid)
+
+    for i in range(n):
+        print("[", end="")
+        for j in range(n):
+            if j == n-1:
+                print(grid[i][j], end="")
+            else:
+                print(grid[i][j], end=sep)
+
+        print("]", end="")
+        print()
+
+def hasDuplicates(grid, row_start, row_end, col_start, col_end):
+    
+    res = []
+    for row in range(row_start, row_end+1):
+        for col in range(col_start, col_end+1):
+            res.append(grid[row][col])
+
+    m = {}
+    for elem in res:
+        if elem == 0:
+            continue
+        if elem in m:
+            m[elem] += 1
+        else:
+            m[elem] = 1
+
+    for key in m:
+        if m[key] > 1:
+            return True
+    
+    
+    return False
+
+def isCorrect(grid):
+    n = len(grid)
+    
+    for x in range(n):
+        if hasDuplicates(grid, x, x, 0, 8):
+            return False
+        if hasDuplicates(grid, 0, 8, x, x):
+            return False
+    
+    ends = [-1, 2, 5, 8]
+
+    for i in range(1, 4):
+        for j in range(1, 4):
+            if hasDuplicates(grid, ends[i-1]+1, ends[i], ends[j-1]+1, ends[j]):
+                return False
+    
+    return True
+
+def solve(grid, unsolved_indices, idx):
+
+    if idx == len(unsolved_indices):
+        return True
+    
+    [x, y] = unsolved_indices[idx]        
+
+    for val in range(1, 10):
+        grid[x][y] = val
+        isC = isCorrect(grid)
+        if isC and solve(grid, unsolved_indices, idx+1):
+            return True
+
+    grid[x][y] = 0
+    
+    return False
+
+def solvePuzzle(grid):
+    unsolved_indices = []
+
+    for i in range(9):
+        for j in range(9):
+            if grid[i][j] == 0:
+                unsolved_indices.append([i,j])
+
+    solve(grid, unsolved_indices, 0) # 3195
+
+    return grid
+
+def read_number(image):
+    results = reader.readtext(
+        image,
+        allowlist='123456789',
+        detail=0
+    )
+
+    if not results:
+        return 0
+
+    # If multiple detections, join or pick largest later
+    return "".join(results)
+
+def get_grid():
+    image = cv2.imread("image.png")
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, image = cv2.threshold(image,160,255,cv2.THRESH_BINARY)#205
+    kernel = np.ones((6,6),np.uint8)
+    image = cv2.erode(image, kernel,iterations = 1)
+
+    contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    big_box_contour = contours[1]
+    big_box_area = cv2.contourArea(big_box_contour)
+    small_sq_area_approx = big_box_area / 100
+
+    big_x, big_y, _, _ = cv2.boundingRect(big_box_contour)
+
+    coordinates = []
+
+    for c in range(2, len(contours)):
+        area = cv2.contourArea(contours[c])
+
+        if ((0.9*small_sq_area_approx) < area) and (area < (1.1*small_sq_area_approx)):
+            x,y,w,h = cv2.boundingRect(contours[c])
+            coordinates.append([x,y,w,h])
+
+    sudoku = [
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+    ]
+
+    for coor in coordinates:
+        [x,y,w,h] = coor
+
+        dy = int((y - big_y) / h)
+        dx = int((x - big_x) / w)
+
+        sudoku[dy][dx] = image[y:y+h, x:x+w]
+    
+    sudoku_digits = [
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0]
+    ]
+
+    for i in range(9):
+        for j in range(9):
+            pred = read_number(sudoku[i][j])
+            sudoku_digits[i][j] = int(pred)
+    
+    return sudoku_digits
+
+unsolvedSudoku = get_grid()
+
+print("unsolved: ")
+printGrid(unsolvedSudoku)
+
+print(
+    "Is this your grid?" \
+    "\nIf not, please input corrections in the format: row column correct_value (1-indexed)." \
+    "\nElse, press Enter."
+)
+
+while True:
+    inp = input()
+
+    if inp == "": break
+
+    [x,y,val] = inp.split(" ")
+    unsolvedSudoku[int(x)-1][int(y)-1] = int(val)
+
+    printGrid(unsolvedSudoku)
+
+print("after solving: ") 
+printGrid(solvePuzzle(unsolvedSudoku))
