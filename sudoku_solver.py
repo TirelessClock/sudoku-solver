@@ -178,7 +178,7 @@ def get_grid():
 
 unsolvedSudoku = get_grid()
 
-print("unsolved: ")
+print("Unsolved: ")
 printGrid(unsolvedSudoku)
 
 print(
@@ -197,5 +197,5 @@ while True:
 
     printGrid(unsolvedSudoku)
 
-print("after solving: ") 
+print("Solved: ") 
 printGrid(solvePuzzle(unsolvedSudoku))
