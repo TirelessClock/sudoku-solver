@@ -149,7 +149,6 @@ def get_grid():
     
     sudoku_digits = [[0]*9 for _ in range(9)]
 
-
     for i in range(9):
         for j in range(9):
             pred = read_number(sudoku[i][j])
