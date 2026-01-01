@@ -152,8 +152,8 @@ def get_grid():
     for coor in coordinates:
         [x,y,w,h] = coor
 
-        dy = int((y - big_y) / h)
-        dx = int((x - big_x) / w)
+        dy = min(int((y - big_y) / h), 8)
+        dx = min(int((x - big_x) / w), 8)
 
         sudoku[dy][dx] = image[y:y+h, x:x+w]
     
