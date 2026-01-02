@@ -161,7 +161,7 @@ print("unsolved: ")
 printGrid(unsolvedSudoku)
 
 print(
-    "is this your puzzle?" \
+    "\nis this your puzzle?" \
     "\nif not, please input corrections in the format: row column correct_value (1-indexed)." \
     "\npress ENTER when satisfied."
 )
